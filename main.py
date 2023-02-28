@@ -58,21 +58,27 @@ class TektronixCurveTracer:
         else:
             self.concrete_tek_ct.cs_peakpower = pp
 
+    def reset_peak_power(self):
+        self.set_peak_power(self.VALID_PEAK_POWER[0])
+
     def increase_peak_power(self):
         self.set_peak_power(self.VALID_PEAK_POWER[1])
 
     def decrease_peak_power(self):
         self.set_peak_power(self.VALID_PEAK_POWER[0])
 
-    def set_collector_suplly(self, value):
-        self.concrete_tek_ct.cs_collector_supply = value
-
     def get_collector_suplly(self):
         return self.concrete_tek_ct.cs_collector_supply
 
+    def set_collector_suplly(self, value):
+        self.concrete_tek_ct.cs_collector_supply = value
+
     def vary_collector_supply(self, variation):
         actual_cs = self.concrete_tek_ct.cs_collector_supply
-        self.concrete_tek_ct.cs_collector_supply = actual_cs + variation
+        self.set_collector_suplly(actual_cs + variation)
+
+    def reset_collector_supply(self):
+        self.set_collector_suplly(0.0)
 
     def set_horizontal_sensitivity(self, sensitivity):
         actual_source = self.concrete_tek_ct.display_horizontal_source_sensitivity[0]
@@ -84,12 +90,19 @@ class TektronixCurveTracer:
     def get_horizontal_range(self):
         return self.get_horizontal_sensitivity() * self.N_HORIZONTAL_DIVS
 
+    def reset_horizontal_range(self):
+        h_source = self.concrete_tek_ct.display_horizontal_source_sensitivity[0]
+        pp = self.get_peak_power()
+        horizontal_sensitivities = \
+            self.concrete_tek_ct.HORIZONTAL_DISPLAY_SENSITIVITY_VALID_SELECTIONS_VS_PEAKPOWER_FOR_SOURCE[h_source][pp]
+        self.set_horizontal_sensitivity(horizontal_sensitivities[0])
+
     def increase_horizontal_range(self):
         h_source = self.concrete_tek_ct.display_horizontal_source_sensitivity[0]
         h_sensitivity = self.concrete_tek_ct.display_horizontal_source_sensitivity[1]
         pp = self.get_peak_power()
         horizontal_sensitivities = \
-            self.concrete_tek_ct.HORIZONTAL_DISPLAY_SENSITIVITY_VALID_RANGES_VS_PEAKPOWER_FOR_SOURCE[h_source][pp]
+            self.concrete_tek_ct.HORIZONTAL_DISPLAY_SENSITIVITY_VALID_SELECTIONS_VS_PEAKPOWER_FOR_SOURCE[h_source][pp]
         index = horizontal_sensitivities.index(h_sensitivity)
         new_index = index + 1
 
@@ -99,7 +112,18 @@ class TektronixCurveTracer:
             pass
 
     def decrease_horizontal_range(self):
-        pass
+        h_source = self.concrete_tek_ct.display_horizontal_source_sensitivity[0]
+        h_sensitivity = self.concrete_tek_ct.display_horizontal_source_sensitivity[1]
+        pp = self.get_peak_power()
+        horizontal_sensitivities = \
+            self.concrete_tek_ct.HORIZONTAL_DISPLAY_SENSITIVITY_VALID_SELECTIONS_VS_PEAKPOWER_FOR_SOURCE[h_source][pp]
+        index = horizontal_sensitivities.index(h_sensitivity)
+        new_index = index - 1
+
+        try:
+            self.set_horizontal_sensitivity(horizontal_sensitivities[new_index])
+        except (Exception, ):
+            pass
 
     def set_vertical_sensitivity(self, sensitivity):
         actual_source = self.concrete_tek_ct.display_vertical_source_sensitivity[0]
@@ -110,6 +134,41 @@ class TektronixCurveTracer:
 
     def get_vertical_range(self):
         return self.get_vertical_sensitivity() * self.N_VERTICAL_DIVS
+
+    def reset_vertical_range(self):
+        v_source = self.concrete_tek_ct.display_vertical_source_sensitivity[0]
+        pp = self.get_peak_power()
+        vertical_sensitivities = \
+            self.concrete_tek_ct.VERTICAL_DISPLAY_SENSITIVITY_VALID_SELECTIONS_VS_PEAKPOWER_FOR_SOURCE[v_source][pp]
+        self.set_vertical_sensitivity(vertical_sensitivities[0])
+
+    def increase_vertical_range(self):
+        v_source = self.concrete_tek_ct.display_vertical_source_sensitivity[0]
+        v_sensitivity = self.concrete_tek_ct.display_vertical_source_sensitivity[1]
+        pp = self.get_peak_power()
+        vertical_sensitivities = \
+            self.concrete_tek_ct.VERTICAL_DISPLAY_SENSITIVITY_VALID_SELECTIONS_VS_PEAKPOWER_FOR_SOURCE[v_source][pp]
+        index = vertical_sensitivities.index(v_sensitivity)
+        if not (index == (len(vertical_sensitivities) - 1)):
+            index = index + 1
+        try:
+            self.set_vertical_sensitivity(vertical_sensitivities[index])
+        except (Exception, ):
+            pass
+
+    def decrease_vertical_range(self):
+        v_source = self.concrete_tek_ct.display_vertical_source_sensitivity[0]
+        v_sensitivity = self.concrete_tek_ct.display_vertical_source_sensitivity[1]
+        pp = self.get_peak_power()
+        vertical_sensitivities = \
+            self.concrete_tek_ct.VERTICAL_DISPLAY_SENSITIVITY_VALID_SELECTIONS_VS_PEAKPOWER_FOR_SOURCE[v_source][pp]
+        index = vertical_sensitivities.index(v_sensitivity)
+        if not (index == 0):
+            index = index - 1
+        try:
+            self.set_vertical_sensitivity(vertical_sensitivities[index])
+        except (Exception, ):
+            pass
 
     def get_current_readout(self):
         return self.concrete_tek_ct.crt_readout_v
@@ -142,20 +201,50 @@ def main() -> int:
 
     while i_cursor < i_max and v_cursor < v_max:
 
-        tct.increase_horizontal_range()
+        # tct.increase_horizontal_range()
+        #
+        # tct.vary_collector_supply(power_supply_increment)
+        # sleep(0.5)
+        # i_cursor = tct.get_current_readout()
+        # v_cursor = tct.get_voltage_readout()
+        #
+        # if i_cursor > tct.get_vertical_range() and i_cursor < i_max:
+        #     tct.increase_vertical_range()
+        #
+        # if v_cursor > tct.get_horizontal_range() and v_cursor < v_max:
+        #     tct.increase_horizontal_range()
+        #
+        # print(v_cursor, i_cursor)
 
-        tct.vary_collector_supply(power_supply_increment)
-        sleep(0.5)
-        i_cursor = tct.get_current_readout()
-        v_cursor = tct.get_voltage_readout()
-
-        if i_cursor > tct.get_vertical_range() and i_cursor < i_max:
+        # sleep(1)
+        # tct.reset_horizontal_range()
+        # sleep(1)
+        # tct.increase_horizontal_range()
+        # sleep(1)
+        # tct.increase_horizontal_range()
+        # sleep(1)
+        # tct.increase_horizontal_range()
+        # sleep(1)
+        # tct.increase_horizontal_range()
+        # sleep(1)
+        # tct.increase_horizontal_range()
+        # sleep(1)
+        # tct.decrease_horizontal_range()
+        # sleep(1)
+        # tct.decrease_horizontal_range()
+        # sleep(1)
+        # tct.decrease_horizontal_range()
+        # sleep(1)
+        # tct.decrease_horizontal_range()
+        # sleep(1)
+        # tct.decrease_horizontal_range()
+        tct.increase_peak_power()
+        sleep(1)
+        tct.reset_vertical_range()
+        while True:
+            sleep(1)
+            print(tct.get_vertical_range())
             tct.increase_vertical_range()
-
-        if v_cursor > tct.get_horizontal_range() and v_cursor < v_max:
-            tct.increase_horizontal_range()
-
-        print(v_cursor, i_cursor)
 
 
 if __name__ == '__main__':
