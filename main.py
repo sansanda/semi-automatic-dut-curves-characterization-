@@ -244,21 +244,20 @@ class TektronixCurveTracer:
         return self.concrete_tek_ct.get_stepgen_offset()
 
     def change_stepgen_offset(self, increase=True):
-        pass
-
-    def increase_stepgen_offset(self):
         offset = self.get_stepgen_offset()
         print(offset)
-        self.set_stepgen_offset(offset + 0.01)
+        delta = -0.01
+        if increase:
+            delta = 0.01
+        self.set_stepgen_offset(offset + delta)
         # a solucionar: cuando nos encontramos en step size = 5v (ver tb si pasa con otras sizes) el incremento de 0.01
         # no tiene efecto sobre el offset. Ver electrical specifications del manual del equipo
 
+    def increase_stepgen_offset(self):
+        self.change_stepgen_offset(increase=True)
+
     def decrease_stepgen_offset(self):
-        offset = self.get_stepgen_offset()
-        print(offset)
-        self.set_stepgen_offset(offset - 0.01)
-        # a solucionar: cuando nos encontramos en step size = 5v (ver tb si pasa con otras sizes) el decremento de 0.01
-        # no tiene efecto sobre el offset. Ver electrical specifications del manual del equipo
+        self.change_stepgen_offset(increase=False)
 
     def reset_stepgen_step_size(self):
         stepgen_sizes = self.get_valid_stepgen_step_sizes()
@@ -278,29 +277,25 @@ class TektronixCurveTracer:
         Otherwise will decrease.
         :return: None
         """
-        pass
+        stepgen_size = self.get_stepgen_step_size()
+        stepgen_sizes = self.get_valid_stepgen_step_sizes()
+        index = stepgen_sizes.index(stepgen_size)
+        if increase:
+            if not (index == (len(stepgen_sizes) - 1)):
+                index = index + 1
+        else:
+            if not (index == 0):
+                index = index - 1
+        try:
+            self.set_stepgen_step_size(stepgen_sizes[index])
+        except (Exception,):
+            pass
 
     def increase_stepgen_step_size(self):
-        stepgen_size = self.get_stepgen_step_size()
-        stepgen_sizes = self.get_valid_stepgen_step_sizes()
-        index = stepgen_sizes.index(stepgen_size)
-        if not (index == (len(stepgen_sizes) - 1)):
-            index = index + 1
-        try:
-            self.set_stepgen_step_size(stepgen_sizes[index])
-        except (Exception,):
-            pass
+        self.change_stepgen_step_size(increase=True)
 
     def decrease_stepgen_step_size(self):
-        stepgen_size = self.get_stepgen_step_size()
-        stepgen_sizes = self.get_valid_stepgen_step_sizes()
-        index = stepgen_sizes.index(stepgen_size)
-        if not (index == (len(stepgen_sizes) - 1)):
-            index = index - 1
-        try:
-            self.set_stepgen_step_size(stepgen_sizes[index])
-        except (Exception,):
-            pass
+        self.change_stepgen_step_size(increase=False)
 
     def get_valid_stepgen_step_sizes(self):
         stepgen_source = self.get_stepgen_source()
