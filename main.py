@@ -78,23 +78,26 @@ class TektronixCurveTracer:
     def set_collector_suplly(self, value):
         self.concrete_tek_ct.cs_collector_supply = value
 
-    def vary_collector_supply(self, variation):
+    def change_collector_supply(self, increase=True, delta=COLLECTOR_SUPPLY_RESOLUTION):
         """
         changes the actual value of the collector supply
-        :param variation: is the variation or delta or increment (in %) we want to vary the collector supply. Min
+        :param increase: if increase is True then the collector supply will change in order to rise the
+        power applied to the DUT. Otherwise if False.
+        :param delta: is the variation or delta (in %) we want to vary the collector supply. Min
         allowed increments of 0.1%
         :return: None
         """
         actual_cs = self.concrete_tek_ct.cs_collector_supply
-        self.set_collector_suplly(actual_cs + variation)
+        _delta = self.COLLECTOR_SUPPLY_RESOLUTION if delta < self.COLLECTOR_SUPPLY_RESOLUTION else abs(delta)
+        if not increase:
+            _delta = - _delta
+        self.set_collector_suplly(actual_cs + delta)
 
-    def increase_collector_supply(self):
-        cs = self.get_collector_suplly()
-        self.set_collector_suplly(cs + self.COLLECTOR_SUPPLY_RESOLUTION)
+    def increase_collector_supply(self, delta=COLLECTOR_SUPPLY_RESOLUTION):
+        self.change_collector_supply(increase=True, delta=delta)
 
-    def decrease_collector_supply(self):
-        cs = self.get_collector_suplly()
-        self.set_collector_suplly(cs - 0.1)
+    def decrease_collector_supply(self, delta=COLLECTOR_SUPPLY_RESOLUTION):
+        self.change_collector_supply(increase=False, delta=delta)
 
     def reset_collector_supply(self):
         self.set_collector_suplly(0.0)
@@ -246,20 +249,21 @@ class TektronixCurveTracer:
     def get_stepgen_offset(self):
         return self.concrete_tek_ct.get_stepgen_offset()
 
-    def change_stepgen_offset(self, increase=True):
+    def change_stepgen_offset(self, delta=0.1, increase=True):
         offset = self.get_stepgen_offset()
         step = self.get_stepgen_step_size()
-        delta = - self.STEPGEN_OFFSET_RESOLUTION * step
-        delta = round(delta, ndigits=3)
-        if increase:
-            delta = - delta
-        self.set_stepgen_offset(offset + delta)
+        min_delta = - self.STEPGEN_OFFSET_RESOLUTION * step
+        min_delta = round(min_delta, ndigits=3)
+        _delta = min_delta if delta < min_delta else abs(delta)
+        if not increase:
+            _delta = - _delta
+        self.set_stepgen_offset(offset + _delta)
 
-    def increase_stepgen_offset(self):
-        self.change_stepgen_offset(increase=True)
+    def increase_stepgen_offset(self, delta=0.1):
+        self.change_stepgen_offset(delta, increase=True)
 
-    def decrease_stepgen_offset(self):
-        self.change_stepgen_offset(increase=False)
+    def decrease_stepgen_offset(self, delta=0.1):
+        self.change_stepgen_offset(delta, increase=False)
 
     def reset_stepgen_step_size(self):
         stepgen_sizes = self.get_valid_stepgen_step_sizes()
@@ -344,7 +348,7 @@ def main() -> int:
 
     while i_cursor < i_max and v_cursor < v_max:
 
-        tct.increase_collector_supply()
+        tct.increase_collector_supply(1.0)
         sleep(0.5)
         i_cursor = tct.get_current_readout()
         v_cursor = tct.get_voltage_readout()
