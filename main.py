@@ -25,6 +25,9 @@ class TektronixCurveTracer:
     N_VERTICAL_DIVS = 10
 
     STEPGEN_MIN_OFFSET = 0.0
+    STEPGEN_OFFSET_RESOLUTION = 0.01
+
+    COLLECTOR_SUPPLY_RESOLUTION = 0.1
 
     def __init__(self, concrete_tek_ct=Tektronix371A):
         self.concrete_tek_ct = concrete_tek_ct
@@ -87,7 +90,7 @@ class TektronixCurveTracer:
 
     def increase_collector_supply(self):
         cs = self.get_collector_suplly()
-        self.set_collector_suplly(cs + 0.1)
+        self.set_collector_suplly(cs + self.COLLECTOR_SUPPLY_RESOLUTION)
 
     def decrease_collector_supply(self):
         cs = self.get_collector_suplly()
@@ -245,13 +248,12 @@ class TektronixCurveTracer:
 
     def change_stepgen_offset(self, increase=True):
         offset = self.get_stepgen_offset()
-        print(offset)
-        delta = -0.01
+        step = self.get_stepgen_step_size()
+        delta = - self.STEPGEN_OFFSET_RESOLUTION * step
+        delta = round(delta, ndigits=3)
         if increase:
-            delta = 0.01
+            delta = - delta
         self.set_stepgen_offset(offset + delta)
-        # a solucionar: cuando nos encontramos en step size = 5v (ver tb si pasa con otras sizes) el incremento de 0.01
-        # no tiene efecto sobre el offset. Ver electrical specifications del manual del equipo
 
     def increase_stepgen_offset(self):
         self.change_stepgen_offset(increase=True)
@@ -301,7 +303,7 @@ class TektronixCurveTracer:
         stepgen_source = self.get_stepgen_source()
         pp = self.get_peak_power()
         return self.concrete_tek_ct. \
-            HORIZONTAL_DISPLAY_SENSITIVITY_VALID_SELECTIONS_VS_PEAKPOWER_FOR_STEPGEN_SOURCE[stepgen_source][pp]
+            STEP_GENERATOR_VALID_STEP_SELECTIONS_FOR_STEP_SOURCE[stepgen_source][pp]
 
     def set_stepgen_source(self, stepgen_source):
         stepgen_sizes = self.get_valid_stepgen_step_sizes()
@@ -325,10 +327,11 @@ def main() -> int:
     ct371A = Tektronix371A("GPIB0::23::INSTR")
     tct = TektronixCurveTracer(ct371A)
     tct.initialize()
-
-    i_max = 2
+    tct.set_stepgen_step_size(5)
+    sleep(0.5)
+    tct.set_stepgen_offset(10)
+    i_max = 20
     v_max = 5
-    power_supply_increment = 0.1
 
     tct.set_collector_suplly(0.0)
     sleep(0.5)  # da tiempo al crt para actualizarse, esto debe cambiarse por opc
@@ -336,33 +339,23 @@ def main() -> int:
     i_cursor = tct.get_current_readout()
     v_cursor = tct.get_voltage_readout()
 
-    sleep(0.5)
+    sleep(0.1)
     print(v_cursor, i_cursor)
 
     while i_cursor < i_max and v_cursor < v_max:
 
-        # tct.increase_horizontal_range()
-        #
-        # tct.vary_collector_supply(power_supply_increment)
-        # sleep(0.5)
-        # i_cursor = tct.get_current_readout()
-        # v_cursor = tct.get_voltage_readout()
-        #
-        # if tct.get_vertical_range() < i_cursor < i_max:
-        #     tct.increase_vertical_range()
-        #
-        # if tct.get_horizontal_range() < v_cursor < v_max:
-        #     tct.increase_horizontal_range()
-        #
-        # print(v_cursor, i_cursor)
+        tct.increase_collector_supply()
+        sleep(0.5)
+        i_cursor = tct.get_current_readout()
+        v_cursor = tct.get_voltage_readout()
 
-        sleep(0.2)
-        tct.reset_stepgen_offset()
-        tct.reset_stepgen_step_size()
-        tct.set_stepgen_step_size(5.0)
-        while True:
-            sleep(0.5)
-            tct.increase_stepgen_offset()
+        if tct.get_vertical_range() < i_cursor < i_max:
+            tct.increase_vertical_range()
+
+        if tct.get_horizontal_range() < v_cursor < v_max:
+            tct.increase_horizontal_range()
+
+        print(v_cursor, i_cursor)
 
 
 if __name__ == '__main__':
