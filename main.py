@@ -326,11 +326,23 @@ class TektronixCurveTracer:
         print(self.concrete_tek_ct.display_horizontal_source_sensitivity)
         print(self.concrete_tek_ct.display_vertical_source_sensitivity)
 
+    def activate_rqs(self, event_handler):
+        self.concrete_tek_ct.activate_rqs(event_handler)
+
+    def start_sweep(self):
+        self.concrete_tek_ct.measure_mode = "SWEep"
 
 def main() -> int:
+
+    def myHandler():
+        print("holaaaaaa, rqs recibido!!!!!")
+        return
+
     ct371A = Tektronix371A("GPIB0::23::INSTR")
     tct = TektronixCurveTracer(ct371A)
     tct.initialize()
+    tct.activate_rqs(myHandler)
+
     tct.set_stepgen_step_size(5)
     sleep(0.5)
     tct.set_stepgen_offset(10)
@@ -361,6 +373,7 @@ def main() -> int:
 
         print(v_cursor, i_cursor)
 
+    tct.start_sweep()
 
 if __name__ == '__main__':
     sys.exit(main())  # next section explains the use of sys
