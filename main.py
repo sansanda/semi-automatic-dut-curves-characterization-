@@ -326,8 +326,8 @@ class TektronixCurveTracer:
         print(self.concrete_tek_ct.display_horizontal_source_sensitivity)
         print(self.concrete_tek_ct.display_vertical_source_sensitivity)
 
-    def activate_rqs(self, event_handler):
-        self.concrete_tek_ct.activate_rqs(event_handler)
+    def activate_rqs(self):
+        self.concrete_tek_ct.activate_rqs()
 
     def start_sweep(self):
         self.concrete_tek_ct.measure_mode = "SWEep"
@@ -335,21 +335,17 @@ class TektronixCurveTracer:
     def get_curve_data(self):
         return self.concrete_tek_ct.curve
 
-def event_handler(resource, event, user_handle):
-    print(f"Handled event {event.event_type} on {resource}")
-    print(event.event_mech)
-
 def main() -> int:
     ct371A = Tektronix371A("GPIB0::23::INSTR")
     tct = TektronixCurveTracer(ct371A)
     tct.initialize()
-    tct.activate_rqs(event_handler)
+    tct.activate_rqs()
 
     tct.set_stepgen_step_size(5)
     sleep(0.5)
     tct.set_stepgen_offset(10)
-    i_max = 20
-    v_max = 5
+    i_max = 0.1
+    v_max = 0.1
 
     tct.set_collector_suplly(0.0)
     sleep(0.5)  # da tiempo al crt para actualizarse, esto debe cambiarse por opc
