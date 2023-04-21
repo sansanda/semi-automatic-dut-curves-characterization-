@@ -332,8 +332,10 @@ class TektronixCurveTracer:
     def start_sweep(self):
         self.concrete_tek_ct.measure_mode = "SWEep"
 
+    def get_curve_data(self):
+        return self.concrete_tek_ct.curve
 
-def handle_event(resource, event, user_handle):
+def event_handler(resource, event, user_handle):
     print(f"Handled event {event.event_type} on {resource}")
     print(event.event_mech)
 
@@ -341,7 +343,7 @@ def main() -> int:
     ct371A = Tektronix371A("GPIB0::23::INSTR")
     tct = TektronixCurveTracer(ct371A)
     tct.initialize()
-    tct.activate_rqs(handle_event)
+    tct.activate_rqs(event_handler)
 
     tct.set_stepgen_step_size(5)
     sleep(0.5)
