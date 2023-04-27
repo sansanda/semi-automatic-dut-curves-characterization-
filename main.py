@@ -344,8 +344,8 @@ def main() -> int:
     tct.set_stepgen_step_size(5)
     sleep(0.5)
     tct.set_stepgen_offset(10)
-    i_max = 5.0
-    v_max = 5.0
+    i_max = 1.0
+    v_max = 1.0
 
     tct.set_collector_suplly(0.0)
     sleep(0.5)  # da tiempo al crt para actualizarse, esto debe cambiarse por opc
