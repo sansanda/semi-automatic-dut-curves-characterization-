@@ -336,7 +336,7 @@ class TektronixCurveTracer:
         return self.concrete_tek_ct.curve
 
 def main() -> int:
-    ct371A = Tektronix371A("GPIB0::23::INSTR")
+    ct371A = Tektronix371A("GPIB0::23::INSTR", timeout=None)
     tct = TektronixCurveTracer(ct371A)
     tct.initialize()
     tct.activate_rqs()
@@ -344,8 +344,8 @@ def main() -> int:
     tct.set_stepgen_step_size(5)
     sleep(0.5)
     tct.set_stepgen_offset(10)
-    i_max = 1.0
-    v_max = 1.0
+    i_max = 10.0
+    v_max = 10.0
 
     tct.set_collector_suplly(0.0)
     sleep(0.5)  # da tiempo al crt para actualizarse, esto debe cambiarse por opc
