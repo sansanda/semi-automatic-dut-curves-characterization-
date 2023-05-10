@@ -326,20 +326,23 @@ class TektronixCurveTracer:
         print(self.concrete_tek_ct.display_horizontal_source_sensitivity)
         print(self.concrete_tek_ct.display_vertical_source_sensitivity)
 
-    def activate_rqs(self):
-        self.concrete_tek_ct.activate_rqs()
+    def activate_srq(self):
+        self.concrete_tek_ct.activate_srq()
+
+    def wait_for_srq(self):
+        self.concrete_tek_ct.wait_for_srq()
 
     def start_sweep(self):
         self.concrete_tek_ct.measure_mode = "SWEep"
 
-    def get_curve_data(self):
-        return self.concrete_tek_ct.curve
+    def get_curve(self):
+        return self.concrete_tek_ct.get_curve()
 
 def main() -> int:
     ct371A = Tektronix371A("GPIB0::23::INSTR", timeout=None)
     tct = TektronixCurveTracer(ct371A)
     tct.initialize()
-    tct.activate_rqs()
+    tct.activate_srq()
 
     tct.set_stepgen_step_size(5)
     sleep(0.5)
@@ -372,10 +375,8 @@ def main() -> int:
         print(v_cursor, i_cursor)
 
     tct.start_sweep()
-
-    while True:
-        pass
-
+    tct.wait_for_srq()
+    print(tct.get_curve())
 
 if __name__ == '__main__':
     sys.exit(main())  # next section explains the use of sys
