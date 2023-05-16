@@ -33,8 +33,8 @@ class TektronixCurveTracer:
         self.concrete_tek_ct = concrete_tek_ct
 
     def initialize(self):
-        self.concrete_tek_ct.initialize()
 
+        self.concrete_tek_ct.initialize()
         # COLLECTOR SUPPLY
         self.concrete_tek_ct.cs_peakpower = 300
         self.concrete_tek_ct.cs_polarity = "POS"
@@ -42,7 +42,7 @@ class TektronixCurveTracer:
         # STEP GEN
         self.concrete_tek_ct.stepgen_step_source_and_size = ("VOLTAGE", 5.0)
         self.concrete_tek_ct.stepgen_number_steps = 0
-        self.concrete_tek_ct.set_stepgen_offset(0)
+        self.concrete_tek_ct.stepgen_offset = 0
         # DISPLAY
         self.concrete_tek_ct.diplay_store_mode = "STO"
         self.concrete_tek_ct.display_horizontal_source_sensitivity = ("COLLECT", 1.0E-1)
@@ -88,7 +88,8 @@ class TektronixCurveTracer:
         :return: None
         """
         actual_cs = self.concrete_tek_ct.cs_collector_supply
-        _delta = self.COLLECTOR_SUPPLY_RESOLUTION if delta < self.COLLECTOR_SUPPLY_RESOLUTION else abs(delta)
+        _delta = self.COLLECTOR_SUPPLY_RESOLUTION if delta < self.COLLECTOR_SUPPLY_RESOLUTION else abs(
+            delta)
         if not increase:
             _delta = - _delta
         self.set_collector_suplly(actual_cs + delta)
@@ -141,7 +142,8 @@ class TektronixCurveTracer:
         horizontal_source = self.concrete_tek_ct.display_horizontal_source_sensitivity[0]
         pp = self.get_peak_power()
         return self.concrete_tek_ct. \
-            HORIZONTAL_DISPLAY_SENSITIVITY_VALID_SELECTIONS_VS_PEAKPOWER_FOR_SOURCE[horizontal_source][pp]
+            HORIZONTAL_DISPLAY_SENSITIVITY_VALID_SELECTIONS_VS_PEAKPOWER_FOR_SOURCE[
+            horizontal_source][pp]
 
     def get_horizontal_range(self):
         return self.get_horizontal_sensitivity() * self.N_HORIZONTAL_DIVS
@@ -194,7 +196,8 @@ class TektronixCurveTracer:
         vertical_source = self.concrete_tek_ct.display_vertical_source_sensitivity[0]
         pp = self.get_peak_power()
         return self.concrete_tek_ct. \
-            VERTICAL_DISPLAY_SENSITIVITY_VALID_SELECTIONS_VS_PEAKPOWER_FOR_SOURCE[vertical_source][pp]
+            VERTICAL_DISPLAY_SENSITIVITY_VALID_SELECTIONS_VS_PEAKPOWER_FOR_SOURCE[vertical_source][
+            pp]
 
     def get_vertical_range(self):
         return self.get_vertical_sensitivity() * self.N_VERTICAL_DIVS
@@ -244,26 +247,38 @@ class TektronixCurveTracer:
         self.set_stepgen_offset(self.STEPGEN_MIN_OFFSET)
 
     def set_stepgen_offset(self, offset):
-        self.concrete_tek_ct.set_stepgen_offset(offset)
+        self.concrete_tek_ct.stepgen_offset = offset
 
     def get_stepgen_offset(self):
-        return self.concrete_tek_ct.get_stepgen_offset()
+        return self.concrete_tek_ct.stepgen_offset
 
-    def change_stepgen_offset(self, delta=0.1, increase=True):
+    def change_stepgen_offset(self, delta=0.1, limit=10, increase=True):
         offset = self.get_stepgen_offset()
+        r_offset = round(offset, 2)
+
+        abs_limit_value = abs(limit)
+        if -abs_limit_value >= r_offset or r_offset >= abs_limit_value:
+            return
+
         step = self.get_stepgen_step_size()
         min_delta = - self.STEPGEN_OFFSET_RESOLUTION * step
-        min_delta = round(min_delta, ndigits=3)
-        _delta = min_delta if delta < min_delta else abs(delta)
+        min_delta = max(round(min_delta, ndigits=3), abs(delta))
         if not increase:
-            _delta = - _delta
-        self.set_stepgen_offset(offset + _delta)
+            min_delta = - min_delta
+        self.set_stepgen_offset(offset + min_delta)
 
-    def increase_stepgen_offset(self, delta=0.1):
-        self.change_stepgen_offset(delta, increase=True)
-
-    def decrease_stepgen_offset(self, delta=0.1):
-        self.change_stepgen_offset(delta, increase=False)
+    def vary_stepgen_offset(self, delta=0.1, limit=10):
+        """
+        Changes the step generator offset following the variation which can be negative.
+        :param delta: the amount of variaton
+        :param limit: the -limit, limit imposed to the minimum or maximun value
+        that the offset can reach.
+        :return: None
+        """
+        if delta <= 0:
+            self.change_stepgen_offset(delta, limit, increase=False)
+        else:
+            self.change_stepgen_offset(delta, limit, increase=True)
 
     def reset_stepgen_step_size(self):
         stepgen_sizes = self.get_valid_stepgen_step_sizes()
@@ -327,7 +342,7 @@ class TektronixCurveTracer:
         print(self.concrete_tek_ct.display_vertical_source_sensitivity)
 
     def activate_srq(self):
-        self.concrete_tek_ct.activate_srq()
+        self.concrete_tek_ct.enable_srq_event()
 
     def wait_for_srq(self):
         self.concrete_tek_ct.wait_for_srq()
@@ -338,45 +353,72 @@ class TektronixCurveTracer:
     def get_curve(self):
         return self.concrete_tek_ct.get_curve()
 
+    def set_number_of_curve_points(self, n):
+        self.concrete_tek_ct.waveform_points = n
+
+
 def main() -> int:
-    ct371A = Tektronix371A("GPIB0::23::INSTR", timeout=None)
-    tct = TektronixCurveTracer(ct371A)
-    tct.initialize()
-    tct.activate_srq()
+    ct371a = Tektronix371A("GPIB0::23::INSTR")
+    tct = TektronixCurveTracer(ct371a)
 
-    tct.set_stepgen_step_size(5)
-    sleep(0.5)
-    tct.set_stepgen_offset(10)
-    i_max = 1.0
-    v_max = 1.0
+    while True:
+        tct.initialize()
+        tct.activate_srq()
 
-    tct.set_collector_suplly(0.0)
-    sleep(0.5)  # da tiempo al crt para actualizarse, esto debe cambiarse por opc
-
-    i_cursor = tct.get_current_readout()
-    v_cursor = tct.get_voltage_readout()
-
-    sleep(0.1)
-    print(v_cursor, i_cursor)
-
-    while i_cursor < i_max and v_cursor < v_max:
-
-        tct.increase_collector_supply(1.0)
+        tct.set_stepgen_step_size(5)
         sleep(0.5)
+        tct.set_stepgen_offset(10)
+        i_max = 10
+        v_max = 5
+
+        tct.set_collector_suplly(0.0)
+        sleep(0.5)  # da tiempo al crt para actualizarse, esto debe cambiarse por opc
+
         i_cursor = tct.get_current_readout()
         v_cursor = tct.get_voltage_readout()
 
-        if tct.get_vertical_range() < i_cursor < i_max:
-            tct.increase_vertical_range()
-
-        if tct.get_horizontal_range() < v_cursor < v_max:
-            tct.increase_horizontal_range()
-
+        sleep(0.1)
         print(v_cursor, i_cursor)
 
-    tct.start_sweep()
-    tct.wait_for_srq()
-    print(tct.get_curve())
+        while i_cursor < i_max and v_cursor < v_max:
+
+            tct.increase_collector_supply(1.0)
+            sleep(0.5)
+            i_cursor = tct.get_current_readout()
+            v_cursor = tct.get_voltage_readout()
+
+            if tct.get_vertical_range() < i_cursor < i_max:
+                tct.increase_vertical_range()
+
+            if tct.get_horizontal_range() < v_cursor < v_max:
+                tct.increase_horizontal_range()
+
+            print(v_cursor, i_cursor)
+
+        tct.start_sweep()
+        tct.wait_for_srq()
+        print(tct.get_curve())
+        tct.concrete_tek_ct.discard_and_disable_all_events()
+
+    # tct.initialize()
+    # tct.activate_srq()
+    #
+    # tct.set_stepgen_step_size(5)
+    # sleep(0.5)
+    # tct.set_stepgen_offset(1)
+    # sleep(0.5)
+    #
+    # delta = 0
+    # while True:
+    #     # tct.vary_stepgen_offset(-0.1, 2)
+    #     print(tct.concrete_tek_ct.front_panel_settings)
+    #     #print(tct.concrete_tek_ct.help)
+    #     tct.set_collector_suplly(delta)
+    #     delta = delta + 0.01
+    #     sleep(0.5)
+
+
+###############################################################################################3
 
 if __name__ == '__main__':
     sys.exit(main())  # next section explains the use of sys
