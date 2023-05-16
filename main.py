@@ -361,61 +361,60 @@ def main() -> int:
     ct371a = Tektronix371A("GPIB0::23::INSTR")
     tct = TektronixCurveTracer(ct371a)
 
-    while True:
-        tct.initialize()
-        tct.activate_srq()
-
-        tct.set_stepgen_step_size(5)
-        sleep(0.5)
-        tct.set_stepgen_offset(10)
-        i_max = 10
-        v_max = 5
-
-        tct.set_collector_suplly(0.0)
-        sleep(0.5)  # da tiempo al crt para actualizarse, esto debe cambiarse por opc
-
-        i_cursor = tct.get_current_readout()
-        v_cursor = tct.get_voltage_readout()
-
-        sleep(0.1)
-        print(v_cursor, i_cursor)
-
-        while i_cursor < i_max and v_cursor < v_max:
-
-            tct.increase_collector_supply(1.0)
-            sleep(0.5)
-            i_cursor = tct.get_current_readout()
-            v_cursor = tct.get_voltage_readout()
-
-            if tct.get_vertical_range() < i_cursor < i_max:
-                tct.increase_vertical_range()
-
-            if tct.get_horizontal_range() < v_cursor < v_max:
-                tct.increase_horizontal_range()
-
-            print(v_cursor, i_cursor)
-
-        tct.start_sweep()
-        tct.wait_for_srq()
-        print(tct.get_curve())
-        tct.concrete_tek_ct.discard_and_disable_all_events()
-
-    # tct.initialize()
-    # tct.activate_srq()
-    #
-    # tct.set_stepgen_step_size(5)
-    # sleep(0.5)
-    # tct.set_stepgen_offset(1)
-    # sleep(0.5)
-    #
-    # delta = 0
     # while True:
-    #     # tct.vary_stepgen_offset(-0.1, 2)
-    #     print(tct.concrete_tek_ct.front_panel_settings)
-    #     #print(tct.concrete_tek_ct.help)
-    #     tct.set_collector_suplly(delta)
-    #     delta = delta + 0.01
+    #     tct.initialize()
+    #     tct.activate_srq()
+    #
+    #     tct.set_stepgen_step_size(5)
     #     sleep(0.5)
+    #     tct.set_stepgen_offset(10)
+    #     i_max = 10
+    #     v_max = 5
+    #
+    #     tct.set_collector_suplly(0.0)
+    #     sleep(0.5)  # da tiempo al crt para actualizarse, esto debe cambiarse por opc
+    #
+    #     i_cursor = tct.get_current_readout()
+    #     v_cursor = tct.get_voltage_readout()
+    #
+    #     sleep(0.1)
+    #     print(v_cursor, i_cursor)
+    #
+    #     while i_cursor < i_max and v_cursor < v_max:
+    #
+    #         tct.increase_collector_supply(1.0)
+    #         sleep(0.5)
+    #         i_cursor = tct.get_current_readout()
+    #         v_cursor = tct.get_voltage_readout()
+    #
+    #         if tct.get_vertical_range() < i_cursor < i_max:
+    #             tct.increase_vertical_range()
+    #
+    #         if tct.get_horizontal_range() < v_cursor < v_max:
+    #             tct.increase_horizontal_range()
+    #
+    #         print(v_cursor, i_cursor)
+    #
+    #     tct.start_sweep()
+    #     tct.wait_for_srq()
+    #     print(tct.get_curve())
+    #     tct.concrete_tek_ct.discard_and_disable_all_events()
+
+    tct.initialize()
+    tct.activate_srq()
+
+    tct.set_stepgen_step_size(5)
+    sleep(0.5)
+    tct.set_stepgen_offset(1)
+    sleep(0.5)
+
+    delta = 0
+    while True:
+        # tct.vary_stepgen_offset(-0.1, 2)
+        print(tct.concrete_tek_ct.cursor_dot)
+        tct.set_collector_suplly(delta)
+        delta = delta + 0.01
+        sleep(0.5)
 
 
 ###############################################################################################3
