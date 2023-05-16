@@ -1,7 +1,7 @@
 import logging
 import sys
 from time import sleep
-from pymeasure.instruments.tektronix.tektronix371A import Tektronix371A
+from pymeasure.instruments.tektronix.tek371A import Tektronix371A
 
 log = logging.getLogger(__name__)
 log.addHandler(logging.NullHandler())
