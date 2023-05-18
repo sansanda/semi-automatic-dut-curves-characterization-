@@ -360,46 +360,13 @@ class TektronixCurveTracer:
 def main() -> int:
     ct371a = Tektronix371A("GPIB0::23::INSTR")
     tct = TektronixCurveTracer(ct371a)
+    test1(tct)
 
-    # while True:
-    #     tct.initialize()
-    #     tct.activate_srq()
-    #
-    #     tct.set_stepgen_step_size(5)
-    #     sleep(0.5)
-    #     tct.set_stepgen_offset(10)
-    #     i_max = 10
-    #     v_max = 5
-    #
-    #     tct.set_collector_suplly(0.0)
-    #     sleep(0.5)  # da tiempo al crt para actualizarse, esto debe cambiarse por opc
-    #
-    #     i_cursor = tct.get_current_readout()
-    #     v_cursor = tct.get_voltage_readout()
-    #
-    #     sleep(0.1)
-    #     print(v_cursor, i_cursor)
-    #
-    #     while i_cursor < i_max and v_cursor < v_max:
-    #
-    #         tct.increase_collector_supply(1.0)
-    #         sleep(0.5)
-    #         i_cursor = tct.get_current_readout()
-    #         v_cursor = tct.get_voltage_readout()
-    #
-    #         if tct.get_vertical_range() < i_cursor < i_max:
-    #             tct.increase_vertical_range()
-    #
-    #         if tct.get_horizontal_range() < v_cursor < v_max:
-    #             tct.increase_horizontal_range()
-    #
-    #         print(v_cursor, i_cursor)
-    #
-    #     tct.start_sweep()
-    #     tct.wait_for_srq()
-    #     print(tct.get_curve())
-    #     tct.concrete_tek_ct.discard_and_disable_all_events()
 
+def test2(tct):
+    """
+    :type tct:TektronixCurveTracer
+    """
     tct.initialize()
     tct.activate_srq()
 
@@ -415,6 +382,50 @@ def main() -> int:
         tct.set_collector_suplly(delta)
         delta = delta + 0.01
         sleep(0.5)
+
+
+def test1(tct):
+    """
+    :type tct:TektronixCurveTracer
+    """
+    while True:
+        tct.initialize()
+        tct.activate_srq()
+
+        tct.set_stepgen_step_size(5)
+        sleep(0.5)
+        tct.set_stepgen_offset(10)
+        i_max = 10
+        v_max = 5
+
+        tct.set_collector_suplly(0.0)
+        sleep(0.5)  # da tiempo al crt para actualizarse, esto debe cambiarse por opc
+
+        i_cursor = tct.get_current_readout()
+        v_cursor = tct.get_voltage_readout()
+
+        sleep(0.1)
+        print(v_cursor, i_cursor)
+
+        while i_cursor < i_max and v_cursor < v_max:
+
+            tct.increase_collector_supply(1.0)
+            sleep(0.5)
+            i_cursor = tct.get_current_readout()
+            v_cursor = tct.get_voltage_readout()
+
+            if tct.get_vertical_range() < i_cursor < i_max:
+                tct.increase_vertical_range()
+
+            if tct.get_horizontal_range() < v_cursor < v_max:
+                tct.increase_horizontal_range()
+
+            print(v_cursor, i_cursor)
+
+        tct.start_sweep()
+        tct.wait_for_srq()
+        print(tct.get_curve())
+        tct.concrete_tek_ct.discard_and_disable_all_events()
 
 
 ###############################################################################################3
