@@ -441,7 +441,7 @@ def measure_3Q(tct,
 
     n_measures = 0
     while n_measures < repeat:
-
+        print("MEASURING 3Q WITH Vgs=", step_gen_offset, "V. Measure number ", n_measures + 1)
         tct.initialize_per_3Q_measure(peakpower,
                                       step_gen_offset,
                                       vertical_sens,
@@ -466,7 +466,7 @@ def measure_3Q(tct,
         curve_points.reverse()
         print(curve_points)
 
-        with open(results_file_name + str(n_measures), 'w') as file:
+        with open(results_file_name + '_' + str(n_measures+1), 'w') as file:
             for curve_point in curve_points:
                 row_text = str(curve_point[0]) + '\t' + str(curve_point[1]) + '\n'
                 file.write(row_text)
@@ -487,10 +487,9 @@ def measure_IdVd(tct,
     """
     :type tct:TektronixCurveTracer
     """
-
     n_measures = 0
     while n_measures < repeat:
-
+        print("MEASURING IdVd WITH Vgs=", step_gen_offset, "V. Measure number ", n_measures + 1)
         tct.initialize_per_output_characteristics_measure(peakpower,
                                                           step_gen_offset,
                                                           vertical_sens,
@@ -515,7 +514,7 @@ def measure_IdVd(tct,
         curve_points.reverse()
         print(curve_points)
 
-        with open(results_file_name + str(n_measures), 'w') as file:
+        with open(results_file_name + '_' + str(n_measures+1), 'w') as file:
             for curve_point in curve_points:
                 row_text = str(curve_point[0]) + '\t' + str(curve_point[1]) + '\n'
                 file.write(row_text)
@@ -528,7 +527,7 @@ def measure_IdVgs(tct,
                   peakpower=3000,
                   collector_suplly=66.6,
                   step_gen_offset=0,
-                  limit_stegen_offset = 15.0,
+                  limit_stegen_offset=15.0,
                   vertical_sens=2.0,
                   horizontal_sens=0.5,
                   max_i=20,
@@ -538,10 +537,9 @@ def measure_IdVgs(tct,
     """
     :type tct:TektronixCurveTracer
     """
-
     n_measures = 0
     while n_measures < repeat:
-
+        print("MEASURING IdVGS WITH Vds=", collector_suplly, "%. Measure number ", n_measures + 1)
         tct.initialize_per_transfer_characteristics_measure(peakpower,
                                                             collector_suplly,
                                                             step_gen_offset,
@@ -568,39 +566,13 @@ def measure_IdVgs(tct,
         curve_points.reverse()
         print(curve_points)
 
-        with open(results_file_name + str(n_measures), 'w') as file:
+        with open(results_file_name + '_' + str(n_measures+1), 'w') as file:
             for curve_point in curve_points:
                 row_text = str(curve_point[0]) + '\t' + str(curve_point[1]) + '\n'
                 file.write(row_text)
 
         tct.concrete_tek_ct.discard_and_disable_all_events()
         n_measures = n_measures + 1
-
-
-def test_change_stepgen_offset(tct):
-    """
-    :type tct:TektronixCurveTracer
-    """
-
-    tct.initialize_per_transfer_characteristics_measure(3000,
-                                                        66.6,
-                                                        0,
-                                                        2.0,
-                                                        1.0)
-    tct.activate_srq()
-    i_cursor = 0
-    v_cursor = 0
-    sleep(0.1)
-    max_v = 10
-    max_i = 20
-
-    while i_cursor < max_i and v_cursor < max_v:
-        tct.vary_stepgen_offset(delta=0.3,
-                                limit=15.00)
-        sleep(0.5)
-        i_cursor = tct.get_current_readout()
-        v_cursor = tct.get_voltage_readout()
-        print(v_cursor, i_cursor)
 
 
 def main() -> int:
@@ -613,80 +585,80 @@ def main() -> int:
     # ##############################################################################################
     # ##############################################################################################
     # ##############################################################################################
-    #
-    # peakpower = 3000
-    # step_gen_offset = 0
-    # vertical_sens = 2.0
-    # horizontal_sens = 0.5
-    # min_i = -20
-    # min_v = -5
-    # curve_name = "ID_Vds@Vgs=0(3ERQ)"
-    # results_file_name = '(' + str(number_of_cycles) + 'cyles)' + device_ref + curve_name
-    #
-    # tct.concrete_tek_ct.initialize()
-    # time.sleep(1)
-    #
-    # measure_3Q(tct,
-    #            peakpower,
-    #            step_gen_offset,
-    #            vertical_sens,
-    #            horizontal_sens,
-    #            min_i,
-    #            min_v,
-    #            results_file_name,
-    #            repeat=2)
-    #
+
+    peakpower = 3000
+    step_gen_offset = 0
+    vertical_sens = 2.0
+    horizontal_sens = 0.5
+    min_i = -20
+    min_v = -5
+    curve_name = "ID_Vds@Vgs=0(3ERQ)"
+    results_file_name = '(' + str(number_of_cycles) + 'cyles)' + device_ref + curve_name
+
+    tct.concrete_tek_ct.initialize()
+    time.sleep(1)
+
+    measure_3Q(tct,
+               peakpower,
+               step_gen_offset,
+               vertical_sens,
+               horizontal_sens,
+               min_i,
+               min_v,
+               results_file_name,
+               repeat=2)
+
     # ##############################################################################################
     # ##############################################################################################
     # ##############################################################################################
-    #
-    # peakpower = 3000
-    # step_gen_offset = 5
-    # vertical_sens = 2.0
-    # horizontal_sens = 0.5
-    # min_i = -20
-    # min_v = -5
-    # curve_name = "ID_Vds@Vgs=-5(3ERQ)"
-    # results_file_name = '(' + str(number_of_cycles) + 'cyles)' + device_ref + curve_name
-    #
-    # tct.concrete_tek_ct.initialize()
-    # time.sleep(1)
-    #
-    # measure_3Q(tct,
-    #            peakpower,
-    #            step_gen_offset,
-    #            vertical_sens,
-    #            horizontal_sens,
-    #            min_i,
-    #            min_v,
-    #            results_file_name,
-    #            repeat=2)
-    #
+
+    peakpower = 3000
+    step_gen_offset = 5
+    vertical_sens = 2.0
+    horizontal_sens = 0.5
+    min_i = -20
+    min_v = -5
+    curve_name = "ID_Vds@Vgs=-5(3ERQ)"
+    results_file_name = '(' + str(number_of_cycles) + 'cyles)' + device_ref + curve_name
+
+    tct.concrete_tek_ct.initialize()
+    time.sleep(1)
+
+    measure_3Q(tct,
+               peakpower,
+               step_gen_offset,
+               vertical_sens,
+               horizontal_sens,
+               min_i,
+               min_v,
+               results_file_name,
+               repeat=2)
+
     # ##############################################################################################
     # ##############################################################################################
     # ##############################################################################################
-    #
-    # peakpower = 3000
-    # step_gen_offset = 15
-    # vertical_sens = 2.0
-    # horizontal_sens = 0.5
-    # max_i = 20
-    # max_v = 5
-    # curve_name = "ID_Vds@Vgs=15V"
-    # results_file_name = '(' + str(number_of_cycles) + 'cyles)' + device_ref + curve_name
-    #
-    # tct.concrete_tek_ct.initialize()
-    # time.sleep(1)
-    #
-    # measure_IdVd(tct,
-    #              peakpower,
-    #              step_gen_offset,
-    #              vertical_sens,
-    #              horizontal_sens,
-    #              max_i,
-    #              max_v,
-    #              results_file_name,
-    #              repeat=2)
+
+    peakpower = 3000
+    step_gen_offset = 15
+    vertical_sens = 2.0
+    horizontal_sens = 0.5
+    max_i = 20
+    max_v = 5
+    curve_name = "ID_Vds@Vgs=15V"
+    results_file_name = '(' + str(number_of_cycles) + 'cyles)' + device_ref + curve_name
+
+    tct.concrete_tek_ct.initialize()
+    time.sleep(1)
+
+    measure_IdVd(tct,
+                 peakpower,
+                 step_gen_offset,
+                 vertical_sens,
+                 horizontal_sens,
+                 max_i,
+                 max_v,
+                 results_file_name,
+                 repeat=2)
 
     ##############################################################################################
     ##############################################################################################
