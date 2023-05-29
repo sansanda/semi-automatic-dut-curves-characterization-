@@ -462,7 +462,7 @@ def measure_3Q(tct,
         curve_points.reverse()
         print(curve_points)
 
-        with open(results_file_name + '_' + str(n_measures+1), 'w') as file:
+        with open(results_file_name + '_' + str(n_measures + 1), 'w') as file:
             for curve_point in curve_points:
                 row_text = str(curve_point[0]) + '\t' + str(curve_point[1]) + '\n'
                 file.write(row_text)
@@ -510,7 +510,7 @@ def measure_IdVd(tct,
         curve_points.reverse()
         print(curve_points)
 
-        with open(results_file_name + '_' + str(n_measures+1), 'w') as file:
+        with open(results_file_name + '_' + str(n_measures + 1), 'w') as file:
             for curve_point in curve_points:
                 row_text = str(curve_point[0]) + '\t' + str(curve_point[1]) + '\n'
                 file.write(row_text)
@@ -562,7 +562,7 @@ def measure_IdVgs(tct,
         curve_points.reverse()
         print(curve_points)
 
-        with open(results_file_name + '_' + str(n_measures+1), 'w') as file:
+        with open(results_file_name + '_' + str(n_measures + 1), 'w') as file:
             for curve_point in curve_points:
                 row_text = str(curve_point[0]) + '\t' + str(curve_point[1]) + '\n'
                 file.write(row_text)
@@ -685,8 +685,6 @@ def main() -> int:
                   max_v,
                   results_file_name,
                   repeat=2)
-
-    test_change_stepgen_offset(tct)
 
 
 if __name__ == '__main__':
