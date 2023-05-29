@@ -522,6 +522,7 @@ def measure_IdVd(tct,
 def measure_IdVgs(tct,
                   peakpower=3000,
                   collector_suplly=66.6,
+                  collector_voltage=30,
                   step_gen_offset=0,
                   limit_stegen_offset=15.0,
                   vertical_sens=2.0,
@@ -535,7 +536,7 @@ def measure_IdVgs(tct,
     """
     n_measures = 0
     while n_measures < repeat:
-        print("MEASURING IdVGS WITH Vds=", collector_suplly, "%. Measure number ", n_measures + 1)
+        print("MEASURING IdVGS WITH Vds=", collector_voltage, "V. Measure number ", n_measures + 1)
         tct.initialize_per_transfer_characteristics_measure(peakpower,
                                                             collector_suplly,
                                                             step_gen_offset,
@@ -662,6 +663,7 @@ def main() -> int:
 
     peakpower = 3000
     collector_supply = 66.6
+    collector_voltage = 30
     step_gen_offset = 0
     limit_stegen_offset = 15.0
     vertical_sens = 2.0
@@ -677,6 +679,7 @@ def main() -> int:
     measure_IdVgs(tct,
                   peakpower,
                   collector_supply,
+                  collector_voltage,
                   step_gen_offset,
                   limit_stegen_offset,
                   vertical_sens,
