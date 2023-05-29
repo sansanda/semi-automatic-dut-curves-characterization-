@@ -406,10 +406,6 @@ class TektronixCurveTracer:
     def get_voltage_readout(self):
         return self.concrete_tek_ct.crt_readout_h
 
-    def t(self):
-        print(self.concrete_tek_ct.display_horizontal_source_sensitivity)
-        print(self.concrete_tek_ct.display_vertical_source_sensitivity)
-
     def activate_srq(self):
         self.concrete_tek_ct.enable_srq_event()
 
