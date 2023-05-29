@@ -33,7 +33,6 @@ class TektronixCurveTracer:
         self.concrete_tek_ct = concrete_tek_ct
 
     def initialize(self):
-
         self.concrete_tek_ct.initialize()
         # COLLECTOR SUPPLY
         self.concrete_tek_ct.cs_peakpower = 300

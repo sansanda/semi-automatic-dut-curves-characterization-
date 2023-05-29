@@ -1,10 +1,12 @@
 import logging
 import sys
+import time
 from time import sleep
 from pymeasure.instruments.tektronix.tek371A import Tektronix371A
 
 log = logging.getLogger(__name__)
 log.addHandler(logging.NullHandler())
+
 
 class TektronixCurveTracer:
     """ Represents a generic Tektronix Curve Tracer
@@ -34,6 +36,7 @@ class TektronixCurveTracer:
     def initialize(self):
 
         self.concrete_tek_ct.initialize()
+        time.sleep(2)
         # COLLECTOR SUPPLY
         self.concrete_tek_ct.cs_peakpower = 300
         self.concrete_tek_ct.cs_polarity = "POS"
@@ -51,12 +54,11 @@ class TektronixCurveTracer:
         self.concrete_tek_ct.measure_mode = "REP"
 
     def initialize_per_3Q_measure(self,
-                      peakpower=3000,
-                      step_gen_offset= 0,
-                      vertical_sens=2.0,
-                      horizontal_sens=0.5):
+                                  peakpower=3000,
+                                  step_gen_offset=0,
+                                  vertical_sens=2.0,
+                                  horizontal_sens=0.5):
 
-        self.concrete_tek_ct.initialize()
         # COLLECTOR SUPPLY
         self.concrete_tek_ct.cs_peakpower = peakpower
         self.concrete_tek_ct.cs_polarity = "NEG"
@@ -74,12 +76,11 @@ class TektronixCurveTracer:
         self.concrete_tek_ct.measure_mode = "REP"
 
     def initialize_per_output_characteristics_measure(self,
-                      peakpower=3000,
-                      step_gen_offset= 0,
-                      vertical_sens=2.0,
-                      horizontal_sens=0.5):
+                                                      peakpower=3000,
+                                                      step_gen_offset=0,
+                                                      vertical_sens=2.0,
+                                                      horizontal_sens=0.5):
 
-        self.concrete_tek_ct.initialize()
         # COLLECTOR SUPPLY
         self.concrete_tek_ct.cs_peakpower = peakpower
         self.concrete_tek_ct.cs_polarity = "POS"
@@ -98,25 +99,24 @@ class TektronixCurveTracer:
 
     def initialize_per_transfer_characteristics_measure(self,
                                                         peakpower=3000,
-                                                        collector_supply = 66.6,
-                                                        step_gen_offset= 0,
+                                                        collector_supply=66.6,
+                                                        step_gen_offset=0,
                                                         vertical_sens=2.0,
                                                         horizontal_sens=1.0):
 
-        self.concrete_tek_ct.initialize()
         # STEP GEN
         self.concrete_tek_ct.stepgen_step_source_and_size = ("VOLTAGE", 5.0)
         self.concrete_tek_ct.stepgen_number_steps = 0
         self.concrete_tek_ct.stepgen_offset = step_gen_offset
-        # DISPLAY
-        self.concrete_tek_ct.diplay_store_mode = "STO"
-        self.concrete_tek_ct.display_horizontal_source_sensitivity = ("STPGEN", horizontal_sens)
-        self.concrete_tek_ct.display_vertical_source_sensitivity = ("COLLECT", vertical_sens)
-        self.concrete_tek_ct.set_cursor_mode("DOT", 1)
         # COLLECTOR SUPPLY
         self.concrete_tek_ct.cs_peakpower = peakpower
         self.concrete_tek_ct.cs_polarity = "POS"
         self.concrete_tek_ct.cs_collector_supply = collector_supply
+        # DISPLAY
+        self.concrete_tek_ct.diplay_store_mode = "STO"
+        self.concrete_tek_ct.display_horizontal_source_sensitivity = ("STP", horizontal_sens)
+        self.concrete_tek_ct.display_vertical_source_sensitivity = ("COLLECT", vertical_sens)
+        self.concrete_tek_ct.set_cursor_mode("DOT", 1)
         # MEASUREMENT
         self.concrete_tek_ct.measure_mode = "REP"
 
@@ -321,7 +321,7 @@ class TektronixCurveTracer:
     def get_stepgen_offset(self):
         return self.concrete_tek_ct.stepgen_offset
 
-    def change_stepgen_offset(self, delta=0.1, limit=10, increase=True):
+    def __change_stepgen_offset(self, delta=0.1, limit=10, increase=True):
         offset = self.get_stepgen_offset()
         r_offset = round(offset, 2)
 
@@ -345,9 +345,9 @@ class TektronixCurveTracer:
         :return: None
         """
         if delta <= 0:
-            self.change_stepgen_offset(delta, limit, increase=False)
+            self.__change_stepgen_offset(delta, limit, increase=False)
         else:
-            self.change_stepgen_offset(delta, limit, increase=True)
+            self.__change_stepgen_offset(delta, limit, increase=True)
 
     def reset_stepgen_step_size(self):
         stepgen_sizes = self.get_valid_stepgen_step_sizes()
@@ -425,62 +425,301 @@ class TektronixCurveTracer:
     def set_number_of_curve_points(self, n):
         self.concrete_tek_ct.waveform_points = n
 
-def main() -> int:
-    ct371a = Tektronix371A("GPIB0::23::INSTR")
-    tct = TektronixCurveTracer(ct371a)
-    measure_3Q_0v(tct)
 
-
-def measure_3Q_0v(tct,
-                  peakpower=3000,
-                  step_gen_offset=0,
-                  vertical_sens=2.0,
-                  horizontal_sens=0.5,
-                  min_i = -20,
-                  min_v = -5,
-                  number_of_cycles = 0,
-                  results_file_name="test"):
+def measure_3Q(tct,
+               peakpower=3000,
+               step_gen_offset=0,
+               vertical_sens=2.0,
+               horizontal_sens=0.5,
+               min_i=-20,
+               min_v=-5,
+               results_file_name="test",
+               repeat=2):
     """
     :type tct:TektronixCurveTracer
     """
-    tct.initialize_per_3Q_measure(peakpower,
-                                  step_gen_offset,
-                                  vertical_sens,
-                                  horizontal_sens)
+
+    n_measures = 0
+    while n_measures < repeat:
+
+        tct.initialize_per_3Q_measure(peakpower,
+                                      step_gen_offset,
+                                      vertical_sens,
+                                      horizontal_sens)
+        tct.activate_srq()
+        i_cursor = 0
+        v_cursor = 0
+        sleep(0.1)
+
+        while i_cursor > min_i and v_cursor > min_v:
+            tct.increase_collector_supply(1.0)
+            sleep(0.5)
+            i_cursor = tct.get_current_readout()
+            v_cursor = tct.get_voltage_readout()
+            print(v_cursor, i_cursor)
+
+        tct.start_sweep()
+        tct.wait_for_srq()
+        curve = tct.get_curve()  # list of tuples [(x0, y0), (x1, y1) .... (xn-1, yn-1)]
+        time.sleep(2)  # wait for instrment response
+        curve_points = curve.points
+        curve_points.reverse()
+        print(curve_points)
+
+        with open(results_file_name + str(n_measures), 'w') as file:
+            for curve_point in curve_points:
+                row_text = str(curve_point[0]) + '\t' + str(curve_point[1]) + '\n'
+                file.write(row_text)
+
+        tct.concrete_tek_ct.discard_and_disable_all_events()
+        n_measures = n_measures + 1
+
+
+def measure_IdVd(tct,
+                 peakpower=3000,
+                 step_gen_offset=0,
+                 vertical_sens=2.0,
+                 horizontal_sens=0.5,
+                 max_i=20,
+                 max_v=5,
+                 results_file_name="test",
+                 repeat=2):
+    """
+    :type tct:TektronixCurveTracer
+    """
+
+    n_measures = 0
+    while n_measures < repeat:
+
+        tct.initialize_per_output_characteristics_measure(peakpower,
+                                                          step_gen_offset,
+                                                          vertical_sens,
+                                                          horizontal_sens)
+        tct.activate_srq()
+        i_cursor = 0
+        v_cursor = 0
+        sleep(0.1)
+
+        while i_cursor < max_i and v_cursor < max_v:
+            tct.increase_collector_supply(1.0)
+            sleep(0.5)
+            i_cursor = tct.get_current_readout()
+            v_cursor = tct.get_voltage_readout()
+            print(v_cursor, i_cursor)
+
+        tct.start_sweep()
+        tct.wait_for_srq()
+        curve = tct.get_curve()  # list of tuples [(x0, y0), (x1, y1) .... (xn-1, yn-1)]
+        time.sleep(2)  # wait for instrment response
+        curve_points = curve.points
+        curve_points.reverse()
+        print(curve_points)
+
+        with open(results_file_name + str(n_measures), 'w') as file:
+            for curve_point in curve_points:
+                row_text = str(curve_point[0]) + '\t' + str(curve_point[1]) + '\n'
+                file.write(row_text)
+
+        tct.concrete_tek_ct.discard_and_disable_all_events()
+        n_measures = n_measures + 1
+
+
+def measure_IdVgs(tct,
+                  peakpower=3000,
+                  collector_suplly=66.6,
+                  step_gen_offset=0,
+                  limit_stegen_offset = 15.0,
+                  vertical_sens=2.0,
+                  horizontal_sens=0.5,
+                  max_i=20,
+                  max_v=5,
+                  results_file_name="test",
+                  repeat=2):
+    """
+    :type tct:TektronixCurveTracer
+    """
+
+    n_measures = 0
+    while n_measures < repeat:
+
+        tct.initialize_per_transfer_characteristics_measure(peakpower,
+                                                            collector_suplly,
+                                                            step_gen_offset,
+                                                            vertical_sens,
+                                                            horizontal_sens)
+        tct.activate_srq()
+        i_cursor = 0
+        v_cursor = 0
+        sleep(0.1)
+
+        while i_cursor < max_i and v_cursor < max_v:
+            tct.vary_stepgen_offset(delta=0.3,
+                                    limit=limit_stegen_offset)
+            sleep(0.5)
+            i_cursor = tct.get_current_readout()
+            v_cursor = tct.get_voltage_readout()
+            print(v_cursor, i_cursor)
+
+        tct.start_sweep()
+        tct.wait_for_srq()
+        curve = tct.get_curve()  # list of tuples [(x0, y0), (x1, y1) .... (xn-1, yn-1)]
+        time.sleep(2)  # wait for instrment response
+        curve_points = curve.points
+        curve_points.reverse()
+        print(curve_points)
+
+        with open(results_file_name + str(n_measures), 'w') as file:
+            for curve_point in curve_points:
+                row_text = str(curve_point[0]) + '\t' + str(curve_point[1]) + '\n'
+                file.write(row_text)
+
+        tct.concrete_tek_ct.discard_and_disable_all_events()
+        n_measures = n_measures + 1
+
+
+def test_change_stepgen_offset(tct):
+    """
+    :type tct:TektronixCurveTracer
+    """
+
+    tct.initialize_per_transfer_characteristics_measure(3000,
+                                                        66.6,
+                                                        0,
+                                                        2.0,
+                                                        1.0)
     tct.activate_srq()
-    i_cursor = tct.get_current_readout()
-    v_cursor = tct.get_voltage_readout()
+    i_cursor = 0
+    v_cursor = 0
     sleep(0.1)
-    print(v_cursor, i_cursor)
+    max_v = 10
+    max_i = 20
 
-    while i_cursor > min_i and v_cursor > min_v:
-
-        tct.increase_collector_supply(1.0)
+    while i_cursor < max_i and v_cursor < max_v:
+        tct.vary_stepgen_offset(delta=0.3,
+                                limit=15.00)
         sleep(0.5)
         i_cursor = tct.get_current_readout()
         v_cursor = tct.get_voltage_readout()
-
-        # if tct.get_vertical_range() < i_cursor < min_i:
-        #     tct.increase_vertical_range()
-        #
-        # if tct.get_horizontal_range() < v_cursor < min_v:
-        #     tct.increase_horizontal_range()
-
         print(v_cursor, i_cursor)
 
-    tct.start_sweep()
-    tct.wait_for_srq()
-    curve_points = tct.get_curve().points # list of tuples [(x0, y0), (x1, y1) .... (xn-1, yn-1)]
 
-    with open(results_file_name + "_" + str(number_of_cycles), 'w') as file:
-        for curve_point in curve_points:
-            row_text = str(curve_point[0]) + '\t' + str(curve_point[1]) + '\n'
-            file.write(row_text)
+def main() -> int:
+    ct371a = Tektronix371A("GPIB0::23::INSTR")
+    tct = TektronixCurveTracer(ct371a)
 
-    tct.concrete_tek_ct.discard_and_disable_all_events()
+    number_of_cycles = 0
+    device_ref = "CREE_C2M0080120_1_TO247"
 
+    # ##############################################################################################
+    # ##############################################################################################
+    # ##############################################################################################
+    #
+    # peakpower = 3000
+    # step_gen_offset = 0
+    # vertical_sens = 2.0
+    # horizontal_sens = 0.5
+    # min_i = -20
+    # min_v = -5
+    # curve_name = "ID_Vds@Vgs=0(3ERQ)"
+    # results_file_name = '(' + str(number_of_cycles) + 'cyles)' + device_ref + curve_name
+    #
+    # tct.concrete_tek_ct.initialize()
+    # time.sleep(1)
+    #
+    # measure_3Q(tct,
+    #            peakpower,
+    #            step_gen_offset,
+    #            vertical_sens,
+    #            horizontal_sens,
+    #            min_i,
+    #            min_v,
+    #            results_file_name,
+    #            repeat=2)
+    #
+    # ##############################################################################################
+    # ##############################################################################################
+    # ##############################################################################################
+    #
+    # peakpower = 3000
+    # step_gen_offset = 5
+    # vertical_sens = 2.0
+    # horizontal_sens = 0.5
+    # min_i = -20
+    # min_v = -5
+    # curve_name = "ID_Vds@Vgs=-5(3ERQ)"
+    # results_file_name = '(' + str(number_of_cycles) + 'cyles)' + device_ref + curve_name
+    #
+    # tct.concrete_tek_ct.initialize()
+    # time.sleep(1)
+    #
+    # measure_3Q(tct,
+    #            peakpower,
+    #            step_gen_offset,
+    #            vertical_sens,
+    #            horizontal_sens,
+    #            min_i,
+    #            min_v,
+    #            results_file_name,
+    #            repeat=2)
+    #
+    # ##############################################################################################
+    # ##############################################################################################
+    # ##############################################################################################
+    #
+    # peakpower = 3000
+    # step_gen_offset = 15
+    # vertical_sens = 2.0
+    # horizontal_sens = 0.5
+    # max_i = 20
+    # max_v = 5
+    # curve_name = "ID_Vds@Vgs=15V"
+    # results_file_name = '(' + str(number_of_cycles) + 'cyles)' + device_ref + curve_name
+    #
+    # tct.concrete_tek_ct.initialize()
+    # time.sleep(1)
+    #
+    # measure_IdVd(tct,
+    #              peakpower,
+    #              step_gen_offset,
+    #              vertical_sens,
+    #              horizontal_sens,
+    #              max_i,
+    #              max_v,
+    #              results_file_name,
+    #              repeat=2)
 
-###############################################################################################3
+    ##############################################################################################
+    ##############################################################################################
+    ##############################################################################################
+
+    peakpower = 3000
+    collector_supply = 66.6
+    step_gen_offset = 0
+    limit_stegen_offset = 15.0
+    vertical_sens = 2.0
+    horizontal_sens = 1.0
+    max_i = 20
+    max_v = 10
+    curve_name = "ID_Vgs@Vds=20"
+    results_file_name = '(' + str(number_of_cycles) + 'cyles)' + device_ref + curve_name
+
+    tct.concrete_tek_ct.initialize()
+    time.sleep(1)
+
+    measure_IdVgs(tct,
+                  peakpower,
+                  collector_supply,
+                  step_gen_offset,
+                  limit_stegen_offset,
+                  vertical_sens,
+                  horizontal_sens,
+                  max_i,
+                  max_v,
+                  results_file_name,
+                  repeat=2)
+
+    test_change_stepgen_offset(tct)
+
 
 if __name__ == '__main__':
     sys.exit(main())  # next section explains the use of sys
