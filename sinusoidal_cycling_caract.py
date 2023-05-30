@@ -578,8 +578,8 @@ def main() -> int:
     ct371a = Tektronix371A("GPIB0::23::INSTR")
     tct = TektronixCurveTracer(ct371a)
 
-    number_of_cycles = 186000
-    device_ref = "CREE_C2M0080120_1_TO247"
+    number_of_cycles = 0
+    device_ref = "CREE_C2M0080120_2_TO247"
 
     # ##############################################################################################
     # ##############################################################################################
@@ -592,7 +592,7 @@ def main() -> int:
     min_i = -20
     min_v = -5
     curve_name = "ID_Vds@Vgs=0(3ERQ)"
-    results_file_name = '(' + str(number_of_cycles) + 'cyles)' + device_ref + curve_name
+    results_file_name = '(' + str(number_of_cycles) + 'cycles)' + device_ref + curve_name
 
     tct.concrete_tek_ct.initialize()
     time.sleep(1)
@@ -618,7 +618,7 @@ def main() -> int:
     min_i = -20
     min_v = -5
     curve_name = "ID_Vds@Vgs=-5(3ERQ)"
-    results_file_name = '(' + str(number_of_cycles) + 'cyles)' + device_ref + curve_name
+    results_file_name = '(' + str(number_of_cycles) + 'cycles)' + device_ref + curve_name
 
     measure_3Q(tct,
                peakpower,
@@ -641,7 +641,7 @@ def main() -> int:
     max_i = 20
     max_v = 5
     curve_name = "ID_Vds@Vgs=15V"
-    results_file_name = '(' + str(number_of_cycles) + 'cyles)' + device_ref + curve_name
+    results_file_name = '(' + str(number_of_cycles) + 'cycles)' + device_ref + curve_name
 
     measure_IdVd(tct,
                  peakpower,
@@ -667,7 +667,7 @@ def main() -> int:
     max_i = 20
     max_v = 10
     curve_name = "ID_Vgs@Vds=20"
-    results_file_name = '(' + str(number_of_cycles) + 'cyles)' + device_ref + curve_name
+    results_file_name = '(' + str(number_of_cycles) + 'cycles)' + device_ref + curve_name
 
     measure_IdVgs(tct,
                   peakpower,
