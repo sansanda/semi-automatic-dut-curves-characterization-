@@ -578,7 +578,7 @@ def main() -> int:
     ct371a = Tektronix371A("GPIB0::23::INSTR")
     tct = TektronixCurveTracer(ct371a)
 
-    number_of_cycles = 0
+    number_of_cycles = 186000
     device_ref = "CREE_C2M0080120_1_TO247"
 
     # ##############################################################################################
