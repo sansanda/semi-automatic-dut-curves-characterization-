@@ -483,6 +483,7 @@ def measure_IdVd(tct,
     """
     :type tct:TektronixCurveTracer
     """
+
     n_measures = 0
     while n_measures < repeat:
         print("MEASURING IdVd WITH Vgs=", step_gen_offset, "V. Measure number ", n_measures + 1)
@@ -534,6 +535,7 @@ def measure_IdVgs(tct,
     """
     :type tct:TektronixCurveTracer
     """
+
     n_measures = 0
     while n_measures < repeat:
         print("MEASURING IdVGS WITH Vds=", collector_voltage, "V. Measure number ", n_measures + 1)
@@ -610,16 +612,13 @@ def main() -> int:
     # ##############################################################################################
 
     peakpower = 3000
-    step_gen_offset = 5
+    step_gen_offset = -5
     vertical_sens = 2.0
     horizontal_sens = 0.5
     min_i = -20
     min_v = -5
     curve_name = "ID_Vds@Vgs=-5(3ERQ)"
     results_file_name = '(' + str(number_of_cycles) + 'cyles)' + device_ref + curve_name
-
-    tct.concrete_tek_ct.initialize()
-    time.sleep(1)
 
     measure_3Q(tct,
                peakpower,
@@ -638,14 +637,11 @@ def main() -> int:
     peakpower = 3000
     step_gen_offset = 15
     vertical_sens = 2.0
-    horizontal_sens = 0.5
+    horizontal_sens = 0.2
     max_i = 20
     max_v = 5
     curve_name = "ID_Vds@Vgs=15V"
     results_file_name = '(' + str(number_of_cycles) + 'cyles)' + device_ref + curve_name
-
-    tct.concrete_tek_ct.initialize()
-    time.sleep(1)
 
     measure_IdVd(tct,
                  peakpower,
@@ -672,9 +668,6 @@ def main() -> int:
     max_v = 10
     curve_name = "ID_Vgs@Vds=20"
     results_file_name = '(' + str(number_of_cycles) + 'cyles)' + device_ref + curve_name
-
-    tct.concrete_tek_ct.initialize()
-    time.sleep(1)
 
     measure_IdVgs(tct,
                   peakpower,
