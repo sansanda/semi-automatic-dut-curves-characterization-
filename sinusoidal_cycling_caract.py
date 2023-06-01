@@ -578,8 +578,8 @@ def main() -> int:
     ct371a = Tektronix371A("GPIB0::23::INSTR")
     tct = TektronixCurveTracer(ct371a)
 
-    number_of_cycles = 0
-    device_ref = "CREE_C2M0080120_2_TO247"
+    number_of_cycles = 79802
+    device_ref = "CREE_C2M0080120_3_TO247"
 
     # ##############################################################################################
     # ##############################################################################################
@@ -594,8 +594,8 @@ def main() -> int:
     curve_name = "ID_Vds@Vgs=0(3ERQ)"
     results_file_name = '(' + str(number_of_cycles) + 'cycles)' + device_ref + curve_name
 
-    tct.concrete_tek_ct.initialize()
-    time.sleep(1)
+    # tct.concrete_tek_ct.initialize()
+    # time.sleep(1)
 
     measure_3Q(tct,
                peakpower,
@@ -605,7 +605,7 @@ def main() -> int:
                min_i,
                min_v,
                results_file_name,
-               repeat=2)
+               repeat=3)
 
     # ##############################################################################################
     # ##############################################################################################
@@ -628,7 +628,7 @@ def main() -> int:
                min_i,
                min_v,
                results_file_name,
-               repeat=2)
+               repeat=3)
 
     # ##############################################################################################
     # ##############################################################################################
@@ -637,7 +637,7 @@ def main() -> int:
     peakpower = 3000
     step_gen_offset = 15
     vertical_sens = 2.0
-    horizontal_sens = 0.2
+    horizontal_sens = 0.5
     max_i = 20
     max_v = 5
     curve_name = "ID_Vds@Vgs=15V"
@@ -651,7 +651,7 @@ def main() -> int:
                  max_i,
                  max_v,
                  results_file_name,
-                 repeat=2)
+                 repeat=3)
 
     ##############################################################################################
     ##############################################################################################
@@ -680,7 +680,10 @@ def main() -> int:
                   max_i,
                   max_v,
                   results_file_name,
-                  repeat=2)
+                  repeat=3)
+
+    tct.set_collector_suplly(0)
+    tct.set_stepgen_offset(0)
 
 
 if __name__ == '__main__':
