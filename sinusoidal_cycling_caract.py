@@ -575,10 +575,14 @@ def measure_IdVgs(tct,
 
 
 def main() -> int:
-    ct371a = Tektronix371A("GPIB0::23::INSTR")
+    ct371a = Tektronix371A("GPIB0::23::INSTR",
+                           name="Tektronix Curve Tracer model 371A",
+                           query_delay=0.1,
+                           write_delay=0.1,
+                           )
     tct = TektronixCurveTracer(ct371a)
 
-    number_of_cycles = 79802
+    number_of_cycles = 161846
     device_ref = "CREE_C2M0080120_3_TO247"
 
     # ##############################################################################################
@@ -593,9 +597,6 @@ def main() -> int:
     min_v = -5
     curve_name = "ID_Vds@Vgs=0(3ERQ)"
     results_file_name = '(' + str(number_of_cycles) + 'cycles)' + device_ref + curve_name
-
-    # tct.concrete_tek_ct.initialize()
-    # time.sleep(1)
 
     measure_3Q(tct,
                peakpower,
