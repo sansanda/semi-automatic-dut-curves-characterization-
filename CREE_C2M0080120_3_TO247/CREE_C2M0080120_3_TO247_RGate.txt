@@ -1,0 +1,7 @@
+medida con multimetro de mano
+
+0 cycles --> over_flow
+79802 cycles --> over_flow
+161846 cycles --> over_flow
+333000 cycles --> over_flow
+
