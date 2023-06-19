@@ -582,8 +582,77 @@ def main() -> int:
                            )
     tct = TektronixCurveTracer(ct371a)
 
-    number_of_cycles = 587000
-    device_ref = "CREE_C2M0080120_3_TO247"
+    number_of_cycles = 622000
+    device_ref = "G4R12MT07-CAU_3"
+
+    # ##############################################################################################
+    # ##############################################################################################
+    # ##############################################################################################
+
+    # peakpower = 3000
+    # step_gen_offset = 0
+    # vertical_sens = 10.0
+    # horizontal_sens = 1.0
+    # min_i = -100
+    # min_v = -7
+    # curve_name = "ID_Vds@Vgs=0(3ERQ)"
+    # results_file_name = '(' + str(number_of_cycles) + 'cycles)' + device_ref + curve_name
+    #
+    # measure_3Q(tct,
+    #            peakpower,
+    #            step_gen_offset,
+    #            vertical_sens,
+    #            horizontal_sens,
+    #            min_i,
+    #            min_v,
+    #            results_file_name,
+    #            repeat=4)
+
+    # ##############################################################################################
+    # ##############################################################################################
+    # ##############################################################################################
+
+    # peakpower = 3000
+    # step_gen_offset = -5
+    # vertical_sens = 10.0
+    # horizontal_sens = 1.0
+    # min_i = -100
+    # min_v = -7
+    # curve_name = "ID_Vds@Vgs=-5(3ERQ)"
+    # results_file_name = '(' + str(number_of_cycles) + 'cycles)' + device_ref + curve_name
+    #
+    # measure_3Q(tct,
+    #            peakpower,
+    #            step_gen_offset,
+    #            vertical_sens,
+    #            horizontal_sens,
+    #            min_i,
+    #            min_v,
+    #            results_file_name,
+    #            repeat=4)
+
+    # ##############################################################################################
+    # ##############################################################################################
+    # ##############################################################################################
+
+    # peakpower = 3000
+    # step_gen_offset = 15
+    # vertical_sens = 10.0
+    # horizontal_sens = 0.2
+    # max_i = 100
+    # max_v = 2
+    # curve_name = "ID_Vds@Vgs=15V"
+    # results_file_name = '(' + str(number_of_cycles) + 'cycles)' + device_ref + curve_name
+    #
+    # measure_IdVd(tct,
+    #              peakpower,
+    #              step_gen_offset,
+    #              vertical_sens,
+    #              horizontal_sens,
+    #              max_i,
+    #              max_v,
+    #              results_file_name,
+    #              repeat=4)
 
     # ##############################################################################################
     # ##############################################################################################
@@ -591,57 +660,11 @@ def main() -> int:
 
     peakpower = 3000
     step_gen_offset = 0
-    vertical_sens = 2.0
-    horizontal_sens = 0.5
-    min_i = -20
-    min_v = -5
-    curve_name = "ID_Vds@Vgs=0(3ERQ)"
-    results_file_name = '(' + str(number_of_cycles) + 'cycles)' + device_ref + curve_name
-
-    measure_3Q(tct,
-               peakpower,
-               step_gen_offset,
-               vertical_sens,
-               horizontal_sens,
-               min_i,
-               min_v,
-               results_file_name,
-               repeat=4)
-
-    # ##############################################################################################
-    # ##############################################################################################
-    # ##############################################################################################
-
-    peakpower = 3000
-    step_gen_offset = -5
-    vertical_sens = 2.0
-    horizontal_sens = 0.5
-    min_i = -20
-    min_v = -5
-    curve_name = "ID_Vds@Vgs=-5(3ERQ)"
-    results_file_name = '(' + str(number_of_cycles) + 'cycles)' + device_ref + curve_name
-
-    measure_3Q(tct,
-               peakpower,
-               step_gen_offset,
-               vertical_sens,
-               horizontal_sens,
-               min_i,
-               min_v,
-               results_file_name,
-               repeat=4)
-
-    # ##############################################################################################
-    # ##############################################################################################
-    # ##############################################################################################
-
-    peakpower = 3000
-    step_gen_offset = 15
-    vertical_sens = 2.0
-    horizontal_sens = 0.5
-    max_i = 20
-    max_v = 5
-    curve_name = "ID_Vds@Vgs=15V"
+    vertical_sens = 10.0
+    horizontal_sens = 1.0
+    max_i = 100
+    max_v = 10
+    curve_name = "ID_Vds@Vgs=Vds"
     results_file_name = '(' + str(number_of_cycles) + 'cycles)' + device_ref + curve_name
 
     measure_IdVd(tct,
@@ -658,30 +681,30 @@ def main() -> int:
     ##############################################################################################
     ##############################################################################################
 
-    peakpower = 3000
-    collector_supply = 66.6
-    collector_voltage = 30
-    step_gen_offset = 0
-    limit_stegen_offset = 15.0
-    vertical_sens = 2.0
-    horizontal_sens = 1.0
-    max_i = 20
-    max_v = 10
-    curve_name = "ID_Vgs@Vds=20"
-    results_file_name = '(' + str(number_of_cycles) + 'cycles)' + device_ref + curve_name
-
-    measure_IdVgs(tct,
-                  peakpower,
-                  collector_supply,
-                  collector_voltage,
-                  step_gen_offset,
-                  limit_stegen_offset,
-                  vertical_sens,
-                  horizontal_sens,
-                  max_i,
-                  max_v,
-                  results_file_name,
-                  repeat=4)
+    # peakpower = 3000
+    # collector_supply = 66.6
+    # collector_voltage = 30
+    # step_gen_offset = 0
+    # limit_stegen_offset = 15.0
+    # vertical_sens = 2.0
+    # horizontal_sens = 1.0
+    # max_i = 20
+    # max_v = 10
+    # curve_name = "ID_Vgs@Vds=20"
+    # results_file_name = '(' + str(number_of_cycles) + 'cycles)' + device_ref + curve_name
+    #
+    # measure_IdVgs(tct,
+    #               peakpower,
+    #               collector_supply,
+    #               collector_voltage,
+    #               step_gen_offset,
+    #               limit_stegen_offset,
+    #               vertical_sens,
+    #               horizontal_sens,
+    #               max_i,
+    #               max_v,
+    #               results_file_name,
+    #               repeat=4)
 
     tct.set_collector_suplly(0)
     tct.set_stepgen_offset(0)
