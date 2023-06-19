@@ -1,0 +1,27 @@
+﻿Cycling a 40A 10ms_ton half sinusoidal cycling (T=1s)
+
+31-05-2023 16:30
+Caracterizacion previa.
+Inicio ciclado desde 0 ciclos.
+Espera detenerlo a 100.000 ciclos (27h46min mas tarde)
+01-06-2023 15:00
+Stop ciclado a 79802 ciclos
+Caracterizacion a 79802 ciclos
+Aparentemente ningun cambio
+01-06-2023 15:30
+Inicio ciclado desde 79802 ciclos
+02-06-2023 14:30
+Stop ciclado a 161846 ciclos
+Caracterizacion a 161846 ciclos
+Aparentemente ningun cambio
+07-06-2023 09:30
+Inicio ciclado desde 161846 ciclos
+09-06-2023 08:00
+Stop ciclado a 330000 ciclos
+Caracterizacion a 330000 ciclos
+Aparentemente ningun cambio
+09-06-2023 10:00
+Inicio ciclado desde 330000 ciclos
+12-06-2023 08:00
+Stop ciclado a 587000 ciclos
+Caracterizacion a 587000 ciclos

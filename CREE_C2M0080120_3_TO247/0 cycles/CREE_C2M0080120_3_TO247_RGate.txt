@@ -1,0 +1,3 @@
+medida con multimetro de mano
+
+0 cycles --> over_flow
